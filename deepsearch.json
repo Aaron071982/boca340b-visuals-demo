@@ -1,0 +1,530 @@
+{
+  "draft_routes": [
+    {
+      "method": "GET",
+      "path": "/clear-cache",
+      "name": null,
+      "middleware": [],
+      "controller": "Closure",
+      "file": "routes/web.php",
+      "line": 12
+    },
+    {
+      "method": "POST",
+      "path": "/inbound_message/",
+      "name": null,
+      "middleware": [],
+      "controller": "Backend\\CustomerSms\\CustomerSmsController@inbound_message",
+      "file": "routes/web.php",
+      "line": 43
+    },
+    {
+      "method": "POST",
+      "path": "/inbound_status/",
+      "name": null,
+      "middleware": [],
+      "controller": "Backend\\CustomerSms\\CustomerSmsController@inbound_status",
+      "file": "routes/web.php",
+      "line": 44
+    },
+    {
+      "method": "GET",
+      "path": "/privacy",
+      "name": "privacy",
+      "middleware": [],
+      "controller": "Backend\\DashboardController@terms",
+      "file": "routes/web.php",
+      "line": 45
+    },
+    {
+      "method": "POST",
+      "path": "/token",
+      "name": "token",
+      "middleware": ["throttle"],
+      "controller": "AccessTokenController@issueToken",
+      "file": "routes/web.php",
+      "line": 49
+    },
+    {
+      "method": "GET",
+      "path": "/authorize",
+      "name": "authorizations.authorize",
+      "middleware": ["web"],
+      "controller": "AuthorizationController@authorize",
+      "file": "routes/web.php",
+      "line": 55
+    },
+    {
+      "method": "POST",
+      "path": "/token/refresh",
+      "name": "token.refresh",
+      "middleware": ["web", "auth"],
+      "controller": "TransientTokenController@refresh",
+      "file": "routes/web.php",
+      "line": 64
+    },
+    {
+      "method": "POST",
+      "path": "/authorize",
+      "name": "authorizations.approve",
+      "middleware": ["web", "auth"],
+      "controller": "ApproveAuthorizationController@approve",
+      "file": "routes/web.php",
+      "line": 69
+    },
+    {
+      "method": "DELETE",
+      "path": "/authorize",
+      "name": "authorizations.deny",
+      "middleware": ["web", "auth"],
+      "controller": "DenyAuthorizationController@deny",
+      "file": "routes/web.php",
+      "line": 74
+    },
+    {
+      "method": "GET",
+      "path": "/tokens",
+      "name": "tokens.index",
+      "middleware": ["web", "auth"],
+      "controller": "AuthorizedAccessTokenController@forUser",
+      "file": "routes/web.php",
+      "line": 79
+    },
+    {
+      "method": "DELETE",
+      "path": "/tokens/{token_id}",
+      "name": "tokens.destroy",
+      "middleware": ["web", "auth"],
+      "controller": "AuthorizedAccessTokenController@destroy",
+      "file": "routes/web.php",
+      "line": 84
+    },
+    {
+      "method": "GET",
+      "path": "/clients",
+      "name": "clients.index",
+      "middleware": ["web", "auth"],
+      "controller": "ClientController@forUser",
+      "file": "routes/web.php",
+      "line": 89
+    },
+    {
+      "method": "POST",
+      "path": "/clients",
+      "name": "clients.store",
+      "middleware": ["web", "auth"],
+      "controller": "ClientController@store",
+      "file": "routes/web.php",
+      "line": 94
+    },
+    {
+      "method": "PUT",
+      "path": "/clients/{client_id}",
+      "name": "clients.update",
+      "middleware": ["web", "auth"],
+      "controller": "ClientController@update",
+      "file": "routes/web.php",
+      "line": 99
+    },
+    {
+      "method": "DELETE",
+      "path": "/clients/{client_id}",
+      "name": "clients.destroy",
+      "middleware": ["web", "auth"],
+      "controller": "ClientController@destroy",
+      "file": "routes/web.php",
+      "line": 104
+    },
+    {
+      "method": "GET",
+      "path": "/scopes",
+      "name": "scopes.index",
+      "middleware": ["web", "auth"],
+      "controller": "ScopeController@all",
+      "file": "routes/web.php",
+      "line": 109
+    },
+    {
+      "method": "GET",
+      "path": "/personal-access-tokens",
+      "name": "personal.tokens.index",
+      "middleware": ["web", "auth"],
+      "controller": "PersonalAccessTokenController@forUser",
+      "file": "routes/web.php",
+      "line": 114
+    },
+    {
+      "method": "POST",
+      "path": "/personal-access-tokens",
+      "name": "personal.tokens.store",
+      "middleware": ["web", "auth"],
+      "controller": "PersonalAccessTokenController@store",
+      "file": "routes/web.php",
+      "line": 119
+    },
+    {
+      "method": "DELETE",
+      "path": "/personal-access-tokens/{token_id}",
+      "name": "personal.tokens.destroy",
+      "middleware": ["web", "auth"],
+      "controller": "PersonalAccessTokenController@destroy",
+      "file": "routes/web.php",
+      "line": 124
+    },
+    {
+      "method": "GET",
+      "path": "/lang/{lang}",
+      "name": null,
+      "middleware": [],
+      "controller": "LanguageController::class@swap",
+      "file": "routes/web.php",
+      "line": 132
+    },
+    {
+      "method": "GET",
+      "path": "/login",
+      "name": "login",
+      "middleware": [],
+      "controller": "CustomAuthController@index",
+      "file": "routes/web.php",
+      "line": 159
+    },
+    {
+      "method": "POST",
+      "path": "/custom-login",
+      "name": "login.custom",
+      "middleware": [],
+      "controller": "CustomAuthController@customLogin",
+      "file": "routes/web.php",
+      "line": 160
+    },
+    {
+      "method": "ANY",
+      "path": "/verify",
+      "name": "verify",
+      "middleware": [],
+      "controller": "CustomAuthController@verify",
+      "file": "routes/web.php",
+      "line": 161
+    },
+    {
+      "method": "POST",
+      "path": "/shiftlocation",
+      "name": "admin.shiftlocation",
+      "middleware": [],
+      "controller": "CustomAuthController@shiftlocation",
+      "file": "routes/web.php",
+      "line": 162
+    },
+    {
+      "method": "POST",
+      "path": "/shiftfacility",
+      "name": "admin.shiftfacility",
+      "middleware": [],
+      "controller": "CustomAuthController@shiftfacility",
+      "file": "routes/web.php",
+      "line": 163
+    },
+    {
+      "method": "POST",
+      "path": "/globaldata",
+      "name": "admin.globaldata",
+      "middleware": [],
+      "controller": "Backend\\Customers\\CustomersController@globaldata",
+      "file": "routes/web.php",
+      "line": 164
+    },
+    {
+      "method": "POST",
+      "path": "/removeglobaldata",
+      "name": "admin.removeglobaldata",
+      "middleware": [],
+      "controller": "Backend\\Customers\\CustomersController@removeglobaldata",
+      "file": "routes/web.php",
+      "line": 165
+    },
+    {
+      "method": "ANY",
+      "path": "/switchback",
+      "name": "admin.switchback",
+      "middleware": [],
+      "controller": "CustomAuthController@switchback",
+      "file": "routes/web.php",
+      "line": 166
+    },
+    {
+      "method": "GET",
+      "path": "/rxnewupdate",
+      "name": "rxnewupdate",
+      "middleware": [],
+      "controller": "Backend\\CronController@rxnewupdate",
+      "file": "routes/web.php",
+      "line": 167
+    },
+    {
+      "method": "ANY",
+      "path": "/micropatientupdate",
+      "name": "micropatientupdate",
+      "middleware": [],
+      "controller": "Backend\\Customers\\CustomersController@patientcronupdate",
+      "file": "routes/web.php",
+      "line": 169
+    },
+    {
+      "method": "GET",
+      "path": "/signdocumentsingle",
+      "name": "signdocumentsingle",
+      "middleware": [],
+      "controller": "Backend\\CronController@signdocumentsingle",
+      "file": "routes/web.php",
+      "line": 170
+    },
+    {
+      "method": "GET",
+      "path": "/orderdateimport",
+      "name": "orderdateimport",
+      "middleware": [],
+      "controller": "Backend\\CronController@orderdateimport",
+      "file": "routes/web.php",
+      "line": 171
+    },
+    {
+      "method": "GET",
+      "path": "/fillFilldates",
+      "name": "fillFilldates",
+      "middleware": [],
+      "controller": "Backend\\DashboardController@fillFilldates",
+      "file": "routes/web.php",
+      "line": 172
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdgetrxdata",
+      "name": "admin.ccdgetrxdata",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdgetrxdata",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/trackcheck",
+      "name": "admin.trackcheck",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@trackcheck",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "GET",
+      "path": "/admin/settings",
+      "name": "admin.settings",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@settings",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "GET",
+      "path": "/admin/help",
+      "name": "admin.help",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@help",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "GET",
+      "path": "/admin/setting/help/{id}/onlydetails",
+      "name": "admin.onlydetails",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@onlyshow",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/pharmacyinfod",
+      "name": "admin.dashboard.pharmacyinfod",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@dpharmacyinfo",
+      "file": "routes/backend/Dashboard.php",
+      "line": 2
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdgetsmsdata",
+      "name": "admin.ccdgetsmsdata",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdgetsmsdata",
+      "file": "routes/backend/Dashboard.php",
+      "line": 3
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdgetescalationdata",
+      "name": "admin.ccdgetescalationdata",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdgetescalationdata",
+      "file": "routes/backend/Dashboard.php",
+      "line": 3
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/getrxdatamssql",
+      "name": "admin.getrxdatamssql",
+      "middleware": ["admin"],
+      "controller": "Backend\\CronController@getrxdatamssql",
+      "file": "routes/backend/Dashboard.php",
+      "line": 3
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdgetnotesdata",
+      "name": "admin.ccdgetnotesdata",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdgetnotesdata",
+      "file": "routes/backend/Dashboard.php",
+      "line": 4
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdgetbilldata",
+      "name": "admin.ccdgetbilldata",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdgetbilldata",
+      "file": "routes/backend/Dashboard.php",
+      "line": 4
+    },
+    {
+      "method": "GET",
+      "path": "/admin/dashboard",
+      "name": "admin.dashboard",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@index",
+      "file": "routes/backend/Dashboard.php",
+      "line": 4
+    },
+    {
+      "method": "POST",
+      "path": "/admin/getdates",
+      "name": "admin.getdates",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@getdates",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "POST",
+      "path": "/admin/get-permission",
+      "name": "admin.get.permission",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@getPermissionByRole",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdashboard",
+      "name": "admin.ccdashboard",
+      "middleware": ["admin", "role_or_permission:view-client-communication"],
+      "controller": "Backend\\DashboardController@ccdashboard",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdashboard_report",
+      "name": "admin.ccdashboard_report",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdashboard_report",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/newrxclientlist",
+      "name": "admin.newrxclientlist",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@newrxclientlist",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/ccdashboardsms",
+      "name": "admin.ccdashboardsms",
+      "middleware": ["admin"],
+      "controller": "Backend\\DashboardController@ccdashboardsms",
+      "file": "routes/backend/Dashboard.php",
+      "line": 5
+    },
+    {
+      "method": "POST",
+      "path": "/admin/dashboardsettings",
+      "name": "admin.dashboardsettings",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@dashboardsettings",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "POST",
+      "path": "/admin/profileupload",
+      "name": "admin.profileupload",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@profileupload",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "POST",
+      "path": "/admin/dashboardupdatesettings",
+      "name": "admin.dashboardupdatesettings",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@dashboardupdatesettings",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/addusersettings",
+      "name": "admin.addusersettings",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@addusersettings",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/editusersettings/{id}/editusersettings",
+      "name": "admin.editusersettings",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@editusersettings",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/viewuser/{id}/viewuser",
+      "name": "admin.viewuser",
+      "middleware": ["admin"],
+      "controller": "Backend\\SupportController@viewuser",
+      "file": "routes/backend/Dashboard.php",
+      "line": 6
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/patients/get",
+      "name": "admin.customers.get",
+      "middleware": ["admin"],
+      "controller": "Backend\\Customers\\CustomersTableController",
+      "file": "routes/backend/Customers.php",
+      "line": 5
+    },
+    {
+      "method": "ANY",
+      "path": "/admin/customers/getsig/{id}",
+      "name": "admin.customers.getsig",
+      "middleware": ["admin"],
+      "controller": "Backend\\Customers

@@ -1,0 +1,65 @@
+sequenceDiagram
+    participant Provider
+    participant Twilio/Vonage/RingCentral
+    participant CustomerSmsController
+    participant CustomerSmsModel
+    participant CustomerModel
+    participant Session
+    participant TenantDB
+    participant Events
+    participant Listeners
+    participant Notifications
+    
+    Provider->>Twilio/Vonage/RingCentral: Inbound SMS received
+    Twilio/Vonage/RingCentral->>CustomerSmsController: POST /inbound_message (webhook)
+    
+    Note over CustomerSmsController: Request body contains:<br/>- From (phone number)<br/>- To (recipient)<br/>- Body (message text)<br/>- SmsSid/MessageId
+    
+    CustomerSmsController->>CustomerSmsController: Validate webhook signature (if implemented)
+    
+    CustomerSmsController->>CustomerModel: Find customer by phone number
+    Note over CustomerModel: Uses tenant DB connection:<br/>session('userLocation')->db_connection
+    CustomerModel->>TenantDB: SELECT * FROM {database}.customers WHERE phone=?
+    TenantDB-->>CustomerModel: Customer found (or null)
+    
+    alt Customer found
+        CustomerSmsController->>CustomerSmsModel: Create inbound SMS record
+        CustomerSmsModel->>TenantDB: INSERT INTO {database}.customer_sms<br/>(customer_id, phone_from, phone_to, message, direction='inbound', status='received')
+        TenantDB-->>CustomerSmsModel: SMS record created
+        
+        CustomerSmsController->>Events: Fire InboundSmsReceived event (if present)
+        Events->>Listeners: Trigger InboundSmsListener
+        Listeners->>Notifications: Send notification (email/admin alert)
+        
+        CustomerSmsController-->>Twilio/Vonage/RingCentral: HTTP 200 OK
+    else Customer not found
+        CustomerSmsController->>CustomerSmsModel: Create unlinked SMS record (customer_id=NULL)
+        CustomerSmsModel->>TenantDB: INSERT INTO {database}.customer_sms (customer_id=NULL, ...)
+        TenantDB-->>CustomerSmsModel: SMS record created
+        
+        CustomerSmsController-->>Twilio/Vonage/RingCentral: HTTP 200 OK
+    end
+    
+    Note over Provider,Notifications: Status Callback Flow
+    
+    Provider->>Twilio/Vonage/RingCentral: SMS status changed (delivered, failed, etc.)
+    Twilio/Vonage/RingCentral->>CustomerSmsController: POST /inbound_status (webhook)
+    
+    CustomerSmsController->>CustomerSmsController: Extract SmsSid/MessageId from request
+    
+    CustomerSmsController->>CustomerSmsModel: Find SMS record by external_id (SmsSid/MessageId)
+    CustomerSmsModel->>TenantDB: SELECT * FROM {database}.customer_sms WHERE external_id=?
+    TenantDB-->>CustomerSmsModel: SMS record found
+    
+    CustomerSmsController->>CustomerSmsModel: Update SMS status
+    CustomerSmsModel->>TenantDB: UPDATE {database}.customer_sms SET status=?, delivered_at=?, error_message=? WHERE id=?
+    TenantDB-->>CustomerSmsModel: SMS record updated
+    
+    alt Status = 'failed'
+        CustomerSmsController->>Events: Fire SmsFailed event (if present)
+        Events->>Listeners: Trigger SmsFailedListener
+        Listeners->>Notifications: Alert admin about failed SMS
+    end
+    
+    CustomerSmsController-->>Twilio/Vonage/RingCentral: HTTP 200 OK
+

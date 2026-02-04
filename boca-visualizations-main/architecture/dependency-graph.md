@@ -1,0 +1,150 @@
+# Dependency Graph
+
+This diagram illustrates the dependency flow between components in the Boca 340B Insights application.
+
+## Dependency Direction
+
+```
+Routes → Controllers → Repositories → Services → Models → Database/External APIs
+```
+
+## Main Dependency Flow
+
+```mermaid
+graph LR
+    subgraph "Routing Layer"
+        WR[routes/web.php]
+        AR[routes/api.php]
+        BR[routes/backend/*.php]
+    end
+    
+    subgraph "Middleware Layer"
+        AM[admin middleware<br/>auth]
+        APM[auth:api<br/>Passport]
+        WM[webhook middleware<br/>ValidateMailgunWebhook]
+    end
+    
+    subgraph "Controller Layer"
+        BC[Backend Controllers<br/>CustomersController<br/>OrdersController<br/>CustomerSmsController]
+        AC[Api/V1 Controllers<br/>AuthController<br/>PagesController]
+        CC[CustomAuthController]
+    end
+    
+    subgraph "Repository Layer"
+        BRP[Backend Repositories<br/>CustomerRepository<br/>OrderRepository]
+    end
+    
+    subgraph "Service Layer"
+        BS[Services/<br/>Business Logic]
+        OS[OtpServices/<br/>OTP Generation]
+        FS[FedExWebServices/<br/>Shipping Integration]
+    end
+    
+    subgraph "Model Layer"
+        CM[Central Models<br/>User<br/>Location<br/>Role]
+        TM[Tenant Models<br/>Customer<br/>Order<br/>Product<br/>Inventory]
+    end
+    
+    subgraph "Event System"
+        E[Events/<br/>Domain Events]
+        L[Listeners/<br/>Event Handlers]
+        N[Notifications/<br/>Notification Classes]
+    end
+    
+    subgraph "External SDKs"
+        MG[Mailgun SDK]
+        TW[Twilio SDK<br/>Botman]
+        SQ[Square SDK]
+        FX[FedEx SDK]
+    end
+    
+    subgraph "External Services"
+        MAIL[Mailgun API]
+        SMS[SMS Providers<br/>Twilio/Vonage/RingCentral]
+        PAY[Square API]
+        SHIP[FedEx API]
+    end
+    
+    subgraph "Database Layer"
+        CDB[(Central DB<br/>mysql)]
+        TDB[(Tenant DBs<br/>Dynamic)]
+    end
+    
+    WR --> AM
+    AR --> APM
+    AR --> WM
+    
+    WR --> BC
+    WR --> CC
+    AR --> AC
+    BR --> BC
+    
+    AM --> BC
+    APM --> AC
+    WM --> CC
+    
+    BC --> BRP
+    AC --> BRP
+    CC --> BRP
+    
+    BC --> BS
+    CC --> OS
+    BC --> FS
+    
+    BRP --> CM
+    BRP --> TM
+    
+    BS --> TM
+    OS --> CM
+    FS --> TM
+    
+    OS --> MG
+    BS --> MG
+    BS --> TW
+    BS --> SQ
+    BS --> FX
+    FS --> FX
+    
+    MG --> MAIL
+    TW --> SMS
+    SQ --> PAY
+    FX --> SHIP
+    
+    CM --> CDB
+    TM --> TDB
+    
+    BS --> E
+    TM --> E
+    E --> L
+    L --> N
+    N --> MG
+    
+    style CDB fill:#e1f5ff
+    style TDB fill:#fff4e1
+    style MAIL fill:#ffe1f5
+    style SMS fill:#ffe1f5
+    style PAY fill:#ffe1f5
+    style SHIP fill:#ffe1f5
+```
+
+**Legend:**
+- 🔵 **Blue**: Central database
+- 🟡 **Yellow**: Tenant databases
+- 🟣 **Pink**: External services
+
+## Dependency Flow Summary
+
+1. **Routes** define entry points and apply middleware
+2. **Middleware** validates authentication and webhook signatures
+3. **Controllers** orchestrate requests and delegate to repositories/services
+4. **Repositories** abstract data access logic
+5. **Services** handle business logic and external integrations
+6. **Models** interact with databases (central or tenant DBs)
+7. **Events/Listeners** handle side effects (emails, notifications)
+
+## Key Patterns
+
+- **Repository Pattern**: Controllers → Repositories → Models
+- **Service Layer**: Business logic and external SDK usage isolated in services
+- **Event-Driven**: Events/Listeners decouple side effects from business logic
+- **Multi-DB Aware**: Models select database connection dynamically based on session

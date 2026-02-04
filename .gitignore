@@ -1,0 +1,8 @@
+# Laravel backend (contains secrets; use separate private repo or env)
+boca340binsights.com-main/
+
+# OS
+.DS_Store
+
+# Dependencies (if any at root later)
+node_modules/

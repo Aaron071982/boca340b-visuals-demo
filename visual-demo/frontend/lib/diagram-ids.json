@@ -1,0 +1,216 @@
+{
+  "Backend\\DashboardController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "DashboardController"
+  },
+  "Backend\\Customers\\CustomersController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "CustomersController"
+  },
+  "Backend\\CustomerSms\\CustomerSmsController": {
+    "architecture": "I",
+    "dependencies": "BC",
+    "flow": "CustomerSmsController"
+  },
+  "CustomAuthController": {
+    "architecture": "H",
+    "dependencies": "CC",
+    "flow": "CustomAuthController"
+  },
+  "Auth": {
+    "architecture": "H",
+    "dependencies": "CC",
+    "flow": "Auth"
+  },
+  "UserModel": {
+    "architecture": "N",
+    "dependencies": "CM",
+    "flow": "UserModel"
+  },
+  "LocationModel": {
+    "architecture": "N",
+    "dependencies": "CM",
+    "flow": "LocationModel"
+  },
+  "OtpService": {
+    "architecture": "R",
+    "dependencies": "OS",
+    "flow": "OtpService"
+  },
+  "Session": {
+    "architecture": "O",
+    "dependencies": "CDB",
+    "flow": "Session"
+  },
+  "routes/web.php": {
+    "architecture": "E",
+    "dependencies": "WR"
+  },
+  "routes/api.php": {
+    "architecture": "F",
+    "dependencies": "AR"
+  },
+  "Backend Repositories": {
+    "architecture": "L",
+    "dependencies": "BRP"
+  },
+  "Api Repositories": {
+    "architecture": "M",
+    "dependencies": "BRP"
+  },
+  "Eloquent Models": {
+    "architecture": "N",
+    "dependencies": "CM"
+  },
+  "Services": {
+    "architecture": "Q",
+    "dependencies": "BS"
+  },
+  "OtpServices": {
+    "architecture": "R",
+    "dependencies": "OS"
+  },
+  "FedExWebServices": {
+    "architecture": "S",
+    "dependencies": "FS"
+  },
+  "Mailgun API": {
+    "architecture": "T",
+    "dependencies": "MAIL",
+    "flow": "Mailgun"
+  },
+  "Twilio/Vonage/RingCentral": {
+    "architecture": "U",
+    "dependencies": "SMS"
+  },
+  "Square SDK": {
+    "architecture": "V",
+    "dependencies": "SQ"
+  },
+  "FedEx API": {
+    "architecture": "W",
+    "dependencies": "SHIP",
+    "flow": "FedEx API"
+  },
+  "Twilio": {
+    "architecture": "U",
+    "dependencies": "SMS",
+    "flow": "Twilio"
+  },
+  "Twilio/Vonage/RingCentral": {
+    "architecture": "U",
+    "dependencies": "SMS",
+    "flow": "Twilio"
+  },
+  "Backend\\Orders\\OrdersController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "OrdersController"
+  },
+  "Backend\\SupportController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "SupportController"
+  },
+  "mysql: users, roles, locations": {
+    "architecture": "O",
+    "dependencies": "CDB",
+    "erd": "users"
+  },
+  "Dynamic DB: customers, orders, inventory": {
+    "architecture": "P",
+    "dependencies": "TDB",
+    "erd": "customers"
+  },
+  "customers": {
+    "erd": "customers"
+  },
+  "orders": {
+    "erd": "orders"
+  },
+  "users": {
+    "erd": "users"
+  },
+  "locations": {
+    "erd": "locations"
+  },
+  "products": {
+    "erd": "products"
+  },
+  "inventory": {
+    "erd": "inventory"
+  },
+  "Backend\\Customers\\CustomersTableController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "CustomersTableController"
+  },
+  "Backend\\Reports\\ReconController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "ReconController"
+  },
+  "Backend\\Reports\\TransactionController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "TransactionController"
+  },
+  "Backend\\Purchases\\PurchasesController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "PurchasesController"
+  },
+  "Backend\\Essentials\\EssentialsController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "EssentialsController"
+  },
+  "Backend\\Savings\\SavingsController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "SavingsController"
+  },
+  "Backend\\Inventory\\InventoryController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "InventoryController"
+  },
+  "Backend\\Reports\\HRSAController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "HRSAController"
+  },
+  "Backend\\Facilities\\ShippingController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "ShippingController"
+  },
+  "Backend\\ESP\\ESPController": {
+    "architecture": "G",
+    "dependencies": "BC",
+    "flow": "ESPController"
+  },
+  "transactions": {
+    "erd": "transactions"
+  },
+  "purchases": {
+    "erd": "purchases"
+  },
+  "esp_data": {
+    "erd": "esp_data"
+  },
+  "customer_addresses": {
+    "erd": "customer_addresses"
+  },
+  "customer_contacts": {
+    "erd": "customer_contacts"
+  },
+  "customer_sms": {
+    "erd": "customer_sms"
+  },
+  "orderitems": {
+    "erd": "orderitems"
+  }
+}
