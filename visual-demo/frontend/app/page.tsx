@@ -5,12 +5,14 @@ import { useVisualizationStore } from '@/lib/store';
 import { eventProcessor } from '@/lib/event-processor';
 import { eventStreamClient } from '@/lib/event-stream';
 import { streamMockEvents } from '@/lib/mock-api';
+import { ErrorHandler } from '@/lib/error-handler';
 import ArchitectureDiagram from '@/components/Diagrams/ArchitectureDiagram';
 import DependencyDiagram from '@/components/Diagrams/DependencyDiagram';
 import ERDDiagram from '@/components/Diagrams/ERDDiagram';
 import FlowDiagram from '@/components/Diagrams/FlowDiagram';
 import DemoWebsite from '@/components/DemoUI/DemoWebsite';
 import ReplayPanel from '@/components/ReplayPanel';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 type DiagramType = 'architecture' | 'dependencies' | 'erd' | 'flow';
 type DemoPage = 
@@ -28,7 +30,8 @@ type DemoPage =
   | 'hrsa' 
   | 'shipping' 
   | 'esp-data' 
-  | 'settings' 
+  | 'manage-admins'
+  | 'settings'
   | 'help'
   | 'login';
 
@@ -64,7 +67,7 @@ export default function Home() {
         });
         setIsConnected(true);
       } catch (error) {
-        console.warn('Failed to connect to Laravel backend, using mock mode:', error);
+        ErrorHandler.handleConnectionError('Failed to connect to Laravel backend. Using mock mode.');
         setIsConnected(false);
       }
     }
@@ -111,14 +114,17 @@ export default function Home() {
   // Special full-screen layout for login page
   if (currentPage === 'login') {
     return (
-      <div className="h-screen w-screen">
-        <DemoWebsite onNavigate={handleNavigation} />
-      </div>
+      <ErrorBoundary>
+        <div className="h-screen w-screen">
+          <DemoWebsite onNavigate={handleNavigation} />
+        </div>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden relative">
+    <ErrorBoundary>
+      <div className="flex h-screen w-screen overflow-hidden relative">
       {/* Left Pane: Demo UI */}
       <div 
         className={`flex flex-col overflow-x-auto transition-all duration-300 ${
@@ -136,12 +142,13 @@ export default function Home() {
       {/* Toggle Button - Always visible */}
       <button
         onClick={() => setIsGraphPaneCollapsed(!isGraphPaneCollapsed)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-blue-600 text-white p-3 rounded-l-lg shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center"
+        className="btn-enhanced absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-blue-600 text-white p-3 rounded-l-lg shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center"
         style={{
           transform: isGraphPaneCollapsed 
             ? 'translateY(-50%) translateX(0)' 
             : 'translateY(-50%) translateX(0)',
           fontFamily: 'Roboto, sans-serif',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }}
         title={isGraphPaneCollapsed ? 'Show Graphs' : 'Hide Graphs'}
       >
@@ -163,15 +170,14 @@ export default function Home() {
           style={{
             backgroundColor: '#20a8d8',
             fontFamily: 'Poppins, sans-serif',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setCurrentDiagram('architecture')}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                currentDiagram === 'architecture'
-                  ? 'bg-white text-blue-600 shadow-md'
-                  : 'bg-blue-700 text-white hover:bg-blue-600'
+              className={`diagram-tab px-4 py-2 rounded-md font-medium ${
+                currentDiagram === 'architecture' ? 'active bg-white text-blue-600' : 'bg-blue-700 text-white'
               }`}
               style={{ fontFamily: 'Roboto, sans-serif' }}
             >
@@ -179,10 +185,8 @@ export default function Home() {
             </button>
             <button
               onClick={() => setCurrentDiagram('dependencies')}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                currentDiagram === 'dependencies'
-                  ? 'bg-white text-blue-600 shadow-md'
-                  : 'bg-blue-700 text-white hover:bg-blue-600'
+              className={`diagram-tab px-4 py-2 rounded-md font-medium ${
+                currentDiagram === 'dependencies' ? 'active bg-white text-blue-600' : 'bg-blue-700 text-white'
               }`}
               style={{ fontFamily: 'Roboto, sans-serif' }}
             >
@@ -190,10 +194,8 @@ export default function Home() {
             </button>
             <button
               onClick={() => setCurrentDiagram('erd')}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                currentDiagram === 'erd'
-                  ? 'bg-white text-blue-600 shadow-md'
-                  : 'bg-blue-700 text-white hover:bg-blue-600'
+              className={`diagram-tab px-4 py-2 rounded-md font-medium ${
+                currentDiagram === 'erd' ? 'active bg-white text-blue-600' : 'bg-blue-700 text-white'
               }`}
               style={{ fontFamily: 'Roboto, sans-serif' }}
             >
@@ -201,10 +203,8 @@ export default function Home() {
             </button>
             <button
               onClick={() => setCurrentDiagram('flow')}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                currentDiagram === 'flow'
-                  ? 'bg-white text-blue-600 shadow-md'
-                  : 'bg-blue-700 text-white hover:bg-blue-600'
+              className={`diagram-tab px-4 py-2 rounded-md font-medium ${
+                currentDiagram === 'flow' ? 'active bg-white text-blue-600' : 'bg-blue-700 text-white'
               }`}
               style={{ fontFamily: 'Roboto, sans-serif' }}
             >
@@ -216,5 +216,6 @@ export default function Home() {
         <ReplayPanel />
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

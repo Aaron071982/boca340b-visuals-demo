@@ -30,6 +30,7 @@ const navItems: NavItem[] = [
 ];
 
 const otherItems: NavItem[] = [
+  { id: 'manage-admins', label: 'Manage Admins', icon: 'bi-person-badge', endpoint: '/admin/auth/user' },
   { id: 'settings', label: 'User Settings', icon: 'bi-gear', endpoint: '/admin/settings' },
   { id: 'help', label: 'Help', icon: 'bi-question-circle', endpoint: '/admin/help' },
 ];
@@ -53,30 +54,30 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
             NAVIGATION
           </h3>
         </div>
-        <ul className="space-y-0">
+        <ul className="space-y-1">
           {navItems.map((item) => {
             const isActive = activePage === item.id;
             return (
               <li key={item.id}>
                 <button
                   onClick={() => onNavigate(item.id, item.endpoint, 'GET')}
-                  className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors relative ${
-                    isActive
-                      ? 'bg-blue-500 text-white font-semibold'
-                      : 'text-white hover:bg-blue-600'
+                  className={`sidebar-nav-item w-full text-left px-4 py-3 flex items-center gap-3 relative rounded-md ${
+                    isActive ? 'active' : ''
                   }`}
                   style={{
-                    backgroundColor: isActive ? '#0B5ED7' : 'transparent',
+                    backgroundColor: isActive ? 'rgba(11, 94, 215, 0.15)' : 'transparent',
+                    color: '#ffffff',
+                    fontFamily: 'Roboto, sans-serif',
                   }}
                 >
                   {isActive && (
                     <div
-                      className="absolute left-0 top-0 bottom-0 w-1"
-                      style={{ backgroundColor: '#60a5fa' }}
+                      className="absolute left-0 top-0 bottom-0 w-1 rounded-r"
+                      style={{ backgroundColor: '#0B5ED7' }}
                     />
                   )}
-                  <i className={`bi ${item.icon} text-lg`}></i>
-                  <span className="text-sm">{item.label}</span>
+                  <i className={`bi ${item.icon} text-lg ${isActive ? 'text-blue-300' : ''}`}></i>
+                  <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
                 </button>
               </li>
             );
@@ -94,30 +95,30 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
             OTHER
           </h3>
         </div>
-        <ul className="space-y-0">
+        <ul className="space-y-1">
           {otherItems.map((item) => {
             const isActive = activePage === item.id;
             return (
               <li key={item.id}>
                 <button
                   onClick={() => onNavigate(item.id, item.endpoint, 'GET')}
-                  className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors relative ${
-                    isActive
-                      ? 'bg-blue-500 text-white font-semibold'
-                      : 'text-white hover:bg-blue-600'
+                  className={`sidebar-nav-item w-full text-left px-4 py-3 flex items-center gap-3 relative rounded-md ${
+                    isActive ? 'active' : ''
                   }`}
                   style={{
-                    backgroundColor: isActive ? '#0B5ED7' : 'transparent',
+                    backgroundColor: isActive ? 'rgba(11, 94, 215, 0.15)' : 'transparent',
+                    color: '#ffffff',
+                    fontFamily: 'Roboto, sans-serif',
                   }}
                 >
                   {isActive && (
                     <div
-                      className="absolute left-0 top-0 bottom-0 w-1"
-                      style={{ backgroundColor: '#60a5fa' }}
+                      className="absolute left-0 top-0 bottom-0 w-1 rounded-r"
+                      style={{ backgroundColor: '#0B5ED7' }}
                     />
                   )}
-                  <i className={`bi ${item.icon} text-lg`}></i>
-                  <span className="text-sm">{item.label}</span>
+                  <i className={`bi ${item.icon} text-lg ${isActive ? 'text-blue-300' : ''}`}></i>
+                  <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
                 </button>
               </li>
             );
@@ -128,20 +129,18 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
       {/* User & Logout Section */}
       <div className="p-4 border-t" style={{ borderColor: '#1e3a5f' }}>
         <div className="mb-3">
-          <p className="text-sm font-medium text-white">Jamal-uddin, Kazi</p>
+          <p className="text-sm font-medium text-white" style={{ fontFamily: 'Roboto, sans-serif' }}>Jamal-uddin, Kazi</p>
         </div>
         <button
-          onClick={() => onNavigate('login', '/login', 'GET')}
-          className="w-full px-4 py-2 rounded text-sm font-medium transition-colors text-white"
+          onClick={() => {
+            if (window.confirm('Are you sure you want to log out?')) {
+              onNavigate('login', '/login', 'GET');
+            }
+          }}
+          className="btn-enhanced w-full px-4 py-2 rounded-md text-sm font-medium text-white"
           style={{ 
             backgroundColor: '#d97706',
             fontFamily: 'Roboto, sans-serif'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#b45309';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#d97706';
           }}
         >
           Logout

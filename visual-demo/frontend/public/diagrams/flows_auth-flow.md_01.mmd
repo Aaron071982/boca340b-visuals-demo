@@ -45,7 +45,7 @@ sequenceDiagram
     CustomAuthController->>LocationModel: Get location details (mysql connection)
     LocationModel-->>CustomAuthController: Location with db_connection
     
-    CustomAuthController->>Session: Store session keys:<br/>- userLocation (Location object)<br/>- userLocationId<br/>- userFacility<br/>- sessionfacility<br/>- defaultlocationlist<br/>- login_token (cleared)
+    CustomAuthController->>Session: Store session keys: userLocation, userLocationId, userFacility, sessionfacility, defaultlocationlist, login_token (cleared)
     
     CustomAuthController-->>Browser: Redirect to /admin/dashboard (or intended URL)
     Browser->>Browser: Admin dashboard loads (session auth active)

@@ -149,26 +149,26 @@ export default function Dashboard({ onAction }: DashboardProps) {
   return (
     <div className="p-6" style={{ backgroundColor: '#f0f3f5' }}>
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-6 mb-6">
         {statCards.map((card, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+            className="stat-card cursor-pointer"
             onClick={() => onAction?.('card-click', '/admin/dashboard', 'GET')}
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: '#73818f', fontFamily: 'Roboto, sans-serif' }}>
+                <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#73818f', fontFamily: 'Roboto, sans-serif' }}>
                   {card.title}
                 </h3>
-                <p className="text-3xl font-bold mb-1" style={{ color: card.valueColor, fontFamily: 'Poppins, sans-serif' }}>
+                <p className="metric-value mb-2" style={{ color: card.valueColor, fontFamily: 'Poppins, sans-serif' }}>
                   {card.value}
                 </p>
-                <p className="text-xs" style={{ color: '#73818f', fontFamily: 'Roboto, sans-serif' }}>
+                <p className="text-xs leading-relaxed" style={{ color: '#73818f', fontFamily: 'Roboto, sans-serif' }}>
                   {card.description}
                 </p>
               </div>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: card.iconBg }}>
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center ${card.iconColor === '#20a8d8' ? 'icon-bg-gradient' : 'icon-bg-gradient-orange'}`}>
                 <i className={`bi ${card.icon} text-2xl`} style={{ color: card.iconColor }}></i>
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function Dashboard({ onAction }: DashboardProps) {
       {/* Charts Section */}
       <div className="grid grid-cols-2 gap-6">
         {/* Patients Summary Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="stat-card">
           <h3 className="text-lg font-semibold mb-4" style={{ color: '#2f353a', fontFamily: 'Poppins, sans-serif' }}>
             PATIENTS SUMMARY
           </h3>
@@ -225,7 +225,7 @@ export default function Dashboard({ onAction }: DashboardProps) {
         </div>
 
         {/* 340B Summary Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="stat-card">
           <h3 className="text-lg font-semibold mb-4" style={{ color: '#2f353a', fontFamily: 'Poppins, sans-serif' }}>
             340B SUMMARY
           </h3>

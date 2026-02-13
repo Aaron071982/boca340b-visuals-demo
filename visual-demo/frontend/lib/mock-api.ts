@@ -285,19 +285,6 @@ const MOCK_REQUESTS: Record<string, MockRequest> = {
       { phase: 'response.sent', componentType: 'response', componentId: '200', status: 'success', delay: 170, meta: { statusCode: 200 } },
     ]),
   },
-  '/admin/patients/get': {
-    endpoint: '/admin/patients/get',
-    method: 'GET',
-    response: { data: [] },
-    events: createEvents(Date.now(), 'mock-req-patients-get-1', '/admin/patients/get', [
-      { phase: 'route.matched', componentType: 'route', componentId: 'routes/web.php', status: 'success', delay: 0 },
-      { phase: 'controller.enter', componentType: 'controller', componentId: 'Backend\\Customers\\CustomersTableController', status: 'success', delay: 10 },
-      { phase: 'db.query', componentType: 'database', componentId: 'customers', status: 'success', delay: 50, meta: { operation: 'SELECT' } },
-      { phase: 'db.query', componentType: 'database', componentId: 'customer_addresses', status: 'success', delay: 70, meta: { operation: 'SELECT' } },
-      { phase: 'controller.exit', componentType: 'controller', componentId: 'Backend\\Customers\\CustomersTableController', status: 'success', delay: 100 },
-      { phase: 'response.sent', componentType: 'response', componentId: '200', status: 'success', delay: 130, meta: { statusCode: 200 } },
-    ]),
-  },
   '/admin/patients/new': {
     endpoint: '/admin/patients/new',
     method: 'GET',
@@ -448,6 +435,25 @@ const MOCK_REQUESTS: Record<string, MockRequest> = {
       { phase: 'db.query', componentType: 'database', componentId: 'esp_data', status: 'success', delay: 50, meta: { operation: 'SELECT' } },
       { phase: 'controller.exit', componentType: 'controller', componentId: 'Backend\\ESP\\ESPController', status: 'success', delay: 80 },
       { phase: 'response.sent', componentType: 'response', componentId: '200', status: 'success', delay: 110, meta: { statusCode: 200 } },
+    ]),
+  },
+  '/admin/auth/user': {
+    endpoint: '/admin/auth/user',
+    method: 'GET',
+    response: {
+      data: [
+        { id: 1, name: 'Jamal-uddin Kazi', email: 'jamal-uddin.kazi@example.com', role: 'Super Admin', status: 'active', lastLogin: '2025-02-12 10:30' },
+        { id: 2, name: 'Sarah Johnson', email: 'sarah.johnson@example.com', role: 'Admin', status: 'active', lastLogin: '2025-02-12 09:15' },
+        { id: 3, name: 'Mike Chen', email: 'mike.chen@example.com', role: 'Manager', status: 'active', lastLogin: '2025-02-11 16:45' },
+      ],
+    },
+    events: createEvents(Date.now(), 'mock-req-auth-user-1', '/admin/auth/user', [
+      { phase: 'route.matched', componentType: 'route', componentId: 'routes/backend/auth.php', status: 'success', delay: 0 },
+      { phase: 'controller.enter', componentType: 'controller', componentId: 'Backend\\Auth\\UserController', status: 'success', delay: 10, meta: { method: 'index' } },
+      { phase: 'db.query', componentType: 'database', componentId: 'users', status: 'success', delay: 50, meta: { operation: 'SELECT' } },
+      { phase: 'db.query', componentType: 'database', componentId: 'roles', status: 'success', delay: 70, meta: { operation: 'SELECT' } },
+      { phase: 'controller.exit', componentType: 'controller', componentId: 'Backend\\Auth\\UserController', status: 'success', delay: 100 },
+      { phase: 'response.sent', componentType: 'response', componentId: '200', status: 'success', delay: 130, meta: { statusCode: 200 } },
     ]),
   },
   '/admin/settings': {
@@ -764,7 +770,7 @@ export function getMockEvents(endpoint: string, method: string = 'GET'): Visuali
     return mockRequest.events.map((event, index) => ({
       ...event,
       endpointId: normalizedEndpoint, // Use normalized endpoint for highlighting
-      timestamp: baseTimestamp + (event.delay || index * 50),
+      timestamp: baseTimestamp + ((event as { delay?: number }).delay ?? index * 50),
     }));
   }
 

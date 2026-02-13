@@ -20,6 +20,7 @@ import HRSATable from './HRSATable';
 import ShippingInformationTable from './ShippingInformationTable';
 import ESPDataTable from './ESPDataTable';
 import UserSettings from './UserSettings';
+import ManageAdmins from './ManageAdmins';
 
 type DemoPage = 
   | 'dashboard' 
@@ -36,7 +37,8 @@ type DemoPage =
   | 'hrsa' 
   | 'shipping' 
   | 'esp-data' 
-  | 'settings' 
+  | 'manage-admins'
+  | 'settings'
   | 'help'
   | 'login';
 
@@ -98,6 +100,8 @@ export default function DemoWebsite({ onNavigate }: DemoWebsiteProps) {
         return <ShippingInformationTable onAction={handleAction} />;
       case 'esp-data':
         return <ESPDataTable onAction={handleAction} />;
+      case 'manage-admins':
+        return <ManageAdmins onAction={handleAction} />;
       case 'settings':
         return <UserSettings onAction={handleAction} />;
       case 'help':

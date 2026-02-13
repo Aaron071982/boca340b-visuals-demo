@@ -460,9 +460,125 @@ h2 {
 }
 
 .metric-value { 
-  font-size: 28px; 
+  font-size: 32px; 
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Enhanced Card Styling */
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+/* Enhanced Button Styling */
+.btn-enhanced {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-enhanced:hover:not(:disabled) {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-enhanced:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-enhanced:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Logout button specific hover */
+button[style*="#d97706"]:hover {
+  background-color: #b45309 !important;
+}
+
+/* Enhanced Sidebar Navigation */
+.sidebar-nav-item {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(11, 94, 215, 0.1);
+}
+
+.sidebar-nav-item.active {
+  background-color: rgba(11, 94, 215, 0.15);
+}
+
+.sidebar-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--primary-blue);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Enhanced Icon Backgrounds */
+.icon-bg-gradient {
+  background: linear-gradient(135deg, rgba(32, 168, 216, 0.1) 0%, rgba(32, 168, 216, 0.2) 100%);
+}
+
+.icon-bg-gradient-orange {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.2) 100%);
+}
+
+/* Enhanced Tab Styling */
+.diagram-tab {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.diagram-tab:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.diagram-tab.active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Input Styling */
+input[type="text"]:focus,
+input[type="email"]:focus,
+select:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1);
+}
+
+/* Enhanced Panel Styling */
+.panel-enhanced {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
 }
 
 /* Force desktop breakpoint - never allow mobile/tablet */

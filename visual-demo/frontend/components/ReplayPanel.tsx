@@ -5,6 +5,7 @@ import { useVisualizationStore } from '@/lib/store';
 import { eventProcessor } from '@/lib/event-processor';
 import { streamMockEvents } from '@/lib/mock-api';
 import { VisualizationEvent } from '@/lib/event-processor';
+import { ExportUtils } from '@/lib/export-utils';
 
 export default function ReplayPanel() {
   const requestHistory = useVisualizationStore((state) => state.requestHistory);
@@ -12,9 +13,16 @@ export default function ReplayPanel() {
   const getRequestEvents = useVisualizationStore((state) => state.getRequestEvents);
   const setIsReplaying = useVisualizationStore((state) => state.setIsReplaying);
   const isReplaying = useVisualizationStore((state) => state.isReplaying);
+  const currentDiagram = useVisualizationStore((state) => state.currentDiagram);
   const [selectedRequestId, setSelectedRequestId] = useState<string>('');
 
   const requestIds = getAllRequestIds();
+  
+  // Flatten all events from request history for export
+  const allEvents: VisualizationEvent[] = [];
+  requestHistory.forEach((events) => {
+    allEvents.push(...events);
+  });
 
   const handleReplay = async () => {
     if (!selectedRequestId) return;
@@ -43,11 +51,11 @@ export default function ReplayPanel() {
   };
 
   return (
-    <div className="bg-gray-100 border-t border-gray-300 p-4" style={{ backgroundColor: '#f8f9fa' }}>
-      <h3 className="text-sm font-semibold mb-2" style={{ color: '#2f353a', fontFamily: 'Poppins, sans-serif' }}>
+    <div className="panel-enhanced p-4 border-t border-gray-200" style={{ backgroundColor: '#f8f9fa' }}>
+      <h3 className="text-sm font-semibold mb-3" style={{ color: '#2f353a', fontFamily: 'Poppins, sans-serif' }}>
         Request Replay
       </h3>
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-3">
         <select
           value={selectedRequestId}
           onChange={(e) => setSelectedRequestId(e.target.value)}
@@ -73,7 +81,7 @@ export default function ReplayPanel() {
         <button
           onClick={handleReplay}
           disabled={!selectedRequestId || isReplaying || requestIds.length === 0}
-          className="px-4 py-2 rounded-md font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm text-white"
+          className="btn-enhanced px-4 py-2 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none text-sm text-white"
           style={{
             backgroundColor: '#20a8d8',
             fontFamily: 'Roboto, sans-serif',
@@ -86,7 +94,7 @@ export default function ReplayPanel() {
             eventProcessor.clearAll();
             setSelectedRequestId('');
           }}
-          className="px-4 py-2 rounded-md font-medium transition-all text-sm text-white"
+          className="btn-enhanced px-4 py-2 rounded-md font-medium text-sm text-white"
           style={{
             backgroundColor: '#73818f',
             fontFamily: 'Roboto, sans-serif',
@@ -95,8 +103,50 @@ export default function ReplayPanel() {
           Clear
         </button>
       </div>
+      
+      {/* Export Buttons */}
+      {allEvents.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-gray-300">
+          <h4 className="text-xs font-semibold mb-3" style={{ color: '#2f353a', fontFamily: 'Poppins, sans-serif' }}>
+            Export
+          </h4>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => ExportUtils.exportRequestHistoryAsJSON(allEvents)}
+              className="btn-enhanced px-4 py-2 rounded-md font-medium text-xs text-white"
+              style={{
+                backgroundColor: '#0B5ED7',
+                fontFamily: 'Roboto, sans-serif',
+              }}
+            >
+              Export JSON
+            </button>
+            <button
+              onClick={() => ExportUtils.exportRequestHistoryAsCSV(allEvents)}
+              className="btn-enhanced px-4 py-2 rounded-md font-medium text-xs text-white"
+              style={{
+                backgroundColor: '#28a745',
+                fontFamily: 'Roboto, sans-serif',
+              }}
+            >
+              Export CSV
+            </button>
+            <button
+              onClick={() => ExportUtils.exportCurrentDiagram(currentDiagram)}
+              className="btn-enhanced px-4 py-2 rounded-md font-medium text-xs text-white"
+              style={{
+                backgroundColor: '#F36F21',
+                fontFamily: 'Roboto, sans-serif',
+              }}
+            >
+              Export Diagram PNG
+            </button>
+          </div>
+        </div>
+      )}
+      
       {requestIds.length > 0 && (
-        <p className="text-xs mt-2" style={{ color: '#73818f', fontFamily: 'Roboto, sans-serif' }}>
+        <p className="text-xs mt-3 text-gray-500" style={{ fontFamily: 'Roboto, sans-serif' }}>
           {requestIds.length} request{requestIds.length !== 1 ? 's' : ''} stored
         </p>
       )}

@@ -3,6 +3,8 @@
  * Toggles CSS classes on nodes/edges without re-rendering diagrams
  */
 
+import { ErrorHandler } from './error-handler';
+
 export type HighlightState = 'active' | 'dim' | 'error' | 'none';
 
 export interface HighlightTarget {
@@ -39,35 +41,42 @@ class HighlightEngine {
     // Check if it's the SVG root or container
     if (element.tagName === 'svg') return true;
     
+    // Check for background-related classes or IDs (most reliable check first)
+    const classList = element.classList;
+    const bgClasses = ['background', 'bg', 'backdrop', 'edgeLabel', 'label-container', 'marker'];
+    if (bgClasses.some(bgClass => classList.contains(bgClass))) return true;
+    
+    const elementId = element.id?.toLowerCase() || '';
+    const bgIds = ['background', 'bg', 'defs', 'marker'];
+    if (bgIds.some(bgId => elementId.includes(bgId))) return true;
+    
+    // Check if it's in a defs or marker element (SVG definitions)
+    if (element.closest('defs') || element.closest('marker')) return true;
+    
     // Check if it's a very large rect (likely background)
     if (element.tagName === 'rect') {
-      const rect = element as SVGRectElement;
+      const rect = element as unknown as SVGRectElement;
       const width = parseFloat(rect.getAttribute('width') || '0');
       const height = parseFloat(rect.getAttribute('height') || '0');
       
-      // If rect is larger than 1500px in either dimension, it's likely a background
-      if (width > 1500 || height > 1500) return true;
+      // If rect is larger than 1200px in either dimension, it's likely a background
+      if (width > 1200 || height > 1200) return true;
       
       // Check if it has meaningful content
       const hasText = element.querySelector('text') || 
                      (element.parentElement && element.parentElement.querySelector('text'));
-      const hasNodeClass = element.classList.contains('node') || 
-                          element.classList.contains('actor') || 
-                          element.classList.contains('participant') ||
+      const hasNodeClass = classList.contains('node') || 
+                          classList.contains('actor') || 
+                          classList.contains('participant') ||
+                          classList.contains('activation') ||
                           element.hasAttribute('data-participant-name');
       
       // If it's a large rect without text and without node classes, it's background
-      if (!hasText && !hasNodeClass && (width > 400 || height > 400)) return true;
+      if (!hasText && !hasNodeClass && (width > 350 || height > 350)) return true;
       
       // If it has no children and is large, it's background
-      if (!hasText && element.children.length === 0 && (width > 300 || height > 300)) return true;
+      if (!hasText && element.children.length === 0 && (width > 250 || height > 250)) return true;
     }
-    
-    // Check for background-related classes or IDs
-    const bgClasses = ['background', 'bg', 'backdrop'];
-    const bgIds = ['background', 'bg'];
-    if (bgClasses.some(bgClass => element.classList.contains(bgClass))) return true;
-    if (bgIds.some(bgId => element.id && element.id.toLowerCase().includes(bgId))) return true;
     
     return false;
   }
@@ -134,53 +143,57 @@ class HighlightEngine {
   highlight(target: HighlightTarget) {
     if (!this.diagramContainer) return;
 
-    const { nodeId, edgeId, state } = target;
+    try {
+      const { nodeId, edgeId, state } = target;
 
-    // Clear existing timeout for this target
-    const key = `${nodeId}-${edgeId || ''}`;
-    if (this.activeHighlights.has(key)) {
-      clearTimeout(this.activeHighlights.get(key)!);
-    }
-
-    // Find the node/edge element
-    const nodeElement = this.findNodeElement(nodeId);
-    const edgeElement = edgeId ? this.findEdgeElement(edgeId) : null;
-
-    // Skip if element is a background or invalid
-    if (nodeElement && (!this.isValidDiagramElement(nodeElement) || this.isBackgroundElement(nodeElement))) {
-      return;
-    }
-    if (edgeElement && (!this.isValidDiagramElement(edgeElement) || this.isBackgroundElement(edgeElement))) {
-      return;
-    }
-
-    // Remove all highlight classes
-    if (nodeElement) {
-      Object.values(HIGHLIGHT_CLASSES).forEach((cls) => {
-        nodeElement.classList.remove(cls);
-      });
-    }
-    if (edgeElement) {
-      Object.values(HIGHLIGHT_CLASSES).forEach((cls) => {
-        edgeElement.classList.remove(cls);
-      });
-    }
-
-    // Apply new highlight class only to valid diagram elements
-    if (state !== 'none') {
-      const className = HIGHLIGHT_CLASSES[state];
-      if (nodeElement && this.isValidDiagramElement(nodeElement) && !this.isBackgroundElement(nodeElement)) {
-        nodeElement.classList.add(className);
-      }
-      if (edgeElement && this.isValidDiagramElement(edgeElement) && !this.isBackgroundElement(edgeElement)) {
-        edgeElement.classList.add(className);
+      // Clear existing timeout for this target
+      const key = `${nodeId}-${edgeId || ''}`;
+      if (this.activeHighlights.has(key)) {
+        clearTimeout(this.activeHighlights.get(key)!);
       }
 
-      // Set decay timer
-      const timeout = setTimeout(() => {
-        this.clearHighlight(target);
-      }, DECAY_TIME);
-      this.activeHighlights.set(key, timeout);
+      // Find the node/edge element
+      const nodeElement = this.findNodeElement(nodeId);
+      const edgeElement = edgeId ? this.findEdgeElement(edgeId) : null;
+
+      // Skip if element is a background or invalid
+      if (nodeElement && (!this.isValidDiagramElement(nodeElement) || this.isBackgroundElement(nodeElement))) {
+        return;
+      }
+      if (edgeElement && (!this.isValidDiagramElement(edgeElement) || this.isBackgroundElement(edgeElement))) {
+        return;
+      }
+
+      // Remove all highlight classes
+      if (nodeElement) {
+        Object.values(HIGHLIGHT_CLASSES).forEach((cls) => {
+          nodeElement.classList.remove(cls);
+        });
+      }
+      if (edgeElement) {
+        Object.values(HIGHLIGHT_CLASSES).forEach((cls) => {
+          edgeElement.classList.remove(cls);
+        });
+      }
+
+      // Apply new highlight class only to valid diagram elements
+      if (state !== 'none') {
+        const className = HIGHLIGHT_CLASSES[state];
+        if (nodeElement && this.isValidDiagramElement(nodeElement) && !this.isBackgroundElement(nodeElement)) {
+          nodeElement.classList.add(className);
+        }
+        if (edgeElement && this.isValidDiagramElement(edgeElement) && !this.isBackgroundElement(edgeElement)) {
+          edgeElement.classList.add(className);
+        }
+
+        // Set decay timer
+        const timeout = setTimeout(() => {
+          this.clearHighlight(target);
+        }, DECAY_TIME);
+        this.activeHighlights.set(key, timeout);
+      }
+    } catch (error) {
+      ErrorHandler.handleHighlightError(target.nodeId, error as Error);
     }
   }
 
@@ -238,13 +251,52 @@ class HighlightEngine {
    * Escapes or removes invalid characters like ::, :, etc.
    */
   private sanitizeSelector(nodeId: string): string {
-    // Replace :: with - (common pattern like Auth::login -> Auth-login)
-    // Replace : with - (single colon can also be problematic)
-    // Remove or escape other invalid characters
-    return nodeId
-      .replace(/::/g, '-')
-      .replace(/:/g, '-')
-      .replace(/[^a-zA-Z0-9_-]/g, '');
+    // Handle namespaces: Backend\\Controller -> Backend-Controller or BackendController
+    let cleaned = nodeId
+      .replace(/\\\\/g, '-')  // Replace \\ with -
+      .replace(/\\/g, '-')    // Replace single \ with -
+      .replace(/::/g, '-')    // Replace :: with -
+      .replace(/:/g, '-')     // Replace : with -
+      .replace(/[^a-zA-Z0-9_-]/g, ''); // Remove other invalid chars
+    
+    return cleaned;
+  }
+  
+  /**
+   * Normalize node ID by extracting meaningful parts
+   * Examples: Backend\\Controller -> Controller, Auth::login -> Auth
+   */
+  private normalizeNodeId(nodeId: string): string[] {
+    const variants: string[] = [nodeId];
+    
+    // Extract last part after namespace separator
+    if (nodeId.includes('\\')) {
+      const parts = nodeId.split('\\');
+      variants.push(parts[parts.length - 1]);
+      // Also try without namespace prefix
+      if (parts.length > 1) {
+        variants.push(parts.slice(1).join('-'));
+      }
+    }
+    
+    // Extract base name before ::
+    if (nodeId.includes('::')) {
+      const base = nodeId.split('::')[0];
+      variants.push(base);
+    }
+    
+    // Remove common suffixes
+    const withoutSuffixes = nodeId
+      .replace(/Controller$/, '')
+      .replace(/Model$/, '')
+      .replace(/Service$/, '')
+      .replace(/Repository$/, '')
+      .replace(/ API$/, '');
+    if (withoutSuffixes !== nodeId) {
+      variants.push(withoutSuffixes);
+    }
+    
+    return [...new Set(variants)]; // Remove duplicates
   }
 
   /**
@@ -253,26 +305,49 @@ class HighlightEngine {
   private findNodeElement(nodeId: string): HTMLElement | null {
     if (!this.diagramContainer) return null;
 
-    // Clean the nodeId for CSS selector use
+    // Get normalized variants of the node ID
+    const normalizedIds = this.normalizeNodeId(nodeId);
     const cleanNodeId = this.sanitizeSelector(nodeId);
     const originalNodeId = nodeId; // Keep original for text matching
 
     // Try multiple selectors for flowcharts/architecture/dependencies
-    const selectors = [
+    const selectors: string[] = [];
+    
+    // Add selectors for all normalized variants
+    for (const variant of normalizedIds) {
+      const cleanVariant = this.sanitizeSelector(variant);
+      selectors.push(
+        `#${cleanVariant}`,
+        `#${variant}`,
+        `[data-node-id="${variant}"]`,
+        `[data-node-id="${cleanVariant}"]`,
+        `[id*="${cleanVariant}"]`,
+        `[id*="${variant}"]`,
+        `.node[id*="${cleanVariant}"]`,
+        `.node[id*="${variant}"]`,
+        `[class*="${cleanVariant}"]`,
+        `[class*="${variant}"]`
+      );
+    }
+    
+    // Also try original and cleaned versions
+    selectors.push(
       `#${cleanNodeId}`,
-      `#${originalNodeId}`, // Try original in case it's valid
+      `#${originalNodeId}`,
       `[data-node-id="${originalNodeId}"]`,
       `[data-node-id="${cleanNodeId}"]`,
       `[id*="${cleanNodeId}"]`,
       `[id*="${originalNodeId}"]`,
       `.node[id*="${cleanNodeId}"]`,
-      `.node[id*="${originalNodeId}"]`,
-    ];
+      `.node[id*="${originalNodeId}"]`
+    );
 
     for (const selector of selectors) {
       try {
         const element = this.diagramContainer.querySelector(selector) as HTMLElement;
-        if (element) return element;
+        if (element && this.isValidDiagramElement(element) && !this.isBackgroundElement(element)) {
+          return element;
+        }
       } catch (e) {
         // Skip invalid selectors silently
         continue;
@@ -281,41 +356,70 @@ class HighlightEngine {
 
     // For sequence diagrams (flow), try to find participants and messages
     // Sequence diagrams use participant boxes and message paths
-    // First try data attributes we added
-    const dataAttrSelectors = [
+    // First try data attributes we added - use all normalized variants
+    const dataAttrSelectors: string[] = [];
+    for (const variant of normalizedIds) {
+      const cleanVariant = this.sanitizeSelector(variant);
+      dataAttrSelectors.push(
+        `[data-participant-name*="${variant}"]`,
+        `[data-participant-name*="${cleanVariant}"]`,
+        `[data-participant-name="${variant}"]`,
+        `[data-participant-name="${cleanVariant}"]`
+      );
+    }
+    // Also try original
+    dataAttrSelectors.push(
       `[data-participant-name*="${originalNodeId}"]`,
       `[data-participant-name*="${cleanNodeId}"]`,
-      // Handle Auth::login -> Auth
-      originalNodeId.includes('::') ? `[data-participant-name*="${originalNodeId.split('::')[0]}"]` : null,
-    ].filter(Boolean) as string[];
+      `[data-participant-name="${originalNodeId}"]`,
+      `[data-participant-name="${cleanNodeId}"]`
+    );
     
     for (const selector of dataAttrSelectors) {
       try {
         const dataAttrElement = this.diagramContainer.querySelector(selector) as HTMLElement;
-        if (dataAttrElement) return dataAttrElement;
+        if (dataAttrElement && this.isValidDiagramElement(dataAttrElement) && !this.isBackgroundElement(dataAttrElement)) {
+          return dataAttrElement;
+        }
       } catch (e) {
         continue;
       }
     }
     
-    const flowSelectors = [
-      // Try to find by participant ID pattern
+    // Try flow-specific selectors with normalized IDs
+    const flowSelectors: string[] = [];
+    for (const variant of normalizedIds) {
+      const cleanVariant = this.sanitizeSelector(variant);
+      flowSelectors.push(
+        `[id*="participant-${cleanVariant}"]`,
+        `[id*="participant-${variant}"]`,
+        `[id*="${cleanVariant.toLowerCase()}"]`,
+        `[id*="${variant.toLowerCase()}"]`,
+        `g[id*="${cleanVariant}"]`,
+        `g[id*="${variant}"]`,
+        `g.actor[id*="${cleanVariant}"]`,
+        `g.participant[id*="${cleanVariant}"]`
+      );
+    }
+    // Also try original
+    flowSelectors.push(
       `[id*="participant-${cleanNodeId}"]`,
       `[id*="participant-${originalNodeId}"]`,
       `[id*="${cleanNodeId.toLowerCase()}"]`,
       `[id*="${originalNodeId.toLowerCase()}"]`,
-      // Try to find actor boxes
       `g[id*="${cleanNodeId}"]`,
       `g[id*="${originalNodeId}"]`,
-      // Handle Auth::login -> Auth
-      originalNodeId.includes('::') ? `[id*="participant-${originalNodeId.split('::')[0]}"]` : null,
-    ].filter(Boolean) as string[];
+      `g.actor[id*="${cleanNodeId}"]`,
+      `g.participant[id*="${cleanNodeId}"]`
+    );
 
     // Try flow-specific selectors
     for (const selector of flowSelectors) {
       try {
         const element = this.diagramContainer.querySelector(selector) as HTMLElement;
-        if (element) return element;
+        if (element && this.isValidDiagramElement(element) && !this.isBackgroundElement(element)) {
+          return element;
+        }
       } catch (e) {
         continue;
       }
@@ -329,14 +433,25 @@ class HighlightEngine {
       // Skip empty or very short text (likely not a participant name)
       if (textContent.trim().length < 2) continue;
       
-      // Handle Auth::login -> Auth (extract base name before ::)
-      const baseName = originalNodeId.includes('::') ? originalNodeId.split('::')[0] : originalNodeId;
-      const cleanBaseName = this.sanitizeSelector(baseName);
+      const textLower = textContent.trim().toLowerCase();
       
-      // Try exact match first (with original nodeId)
-      if (textContent.trim().toLowerCase() === originalNodeId.toLowerCase() ||
-          textContent.trim().toLowerCase() === baseName.toLowerCase() ||
-          textContent.trim().toLowerCase() === nodeId.toLowerCase()) {
+      // Try matching against all normalized variants
+      const matches = normalizedIds.some(variant => {
+        const variantLower = variant.toLowerCase();
+        return textLower === variantLower || 
+               textLower.includes(variantLower) || 
+               variantLower.includes(textLower);
+      });
+      
+      // Also try original and base name
+      const baseName = originalNodeId.includes('::') ? originalNodeId.split('::')[0] : originalNodeId;
+      const matchesOriginal = textLower === originalNodeId.toLowerCase() ||
+          textLower === baseName.toLowerCase() ||
+          textLower === nodeId.toLowerCase() ||
+          textLower.includes(originalNodeId.toLowerCase()) ||
+          textLower.includes(baseName.toLowerCase());
+      
+      if (matches || matchesOriginal) {
         // Find parent rect (box) or group containing a rect, but never return the text itself
         let parent = textEl.parentElement;
         while (parent && parent.tagName !== 'svg') {
@@ -350,9 +465,9 @@ class HighlightEngine {
           if (parent.tagName === 'g') {
             // Check if this group contains a valid rect
             const rect = parent.querySelector('rect');
-            if (rect && this.isValidDiagramElement(rect as HTMLElement) && 
-                !this.isBackgroundElement(rect as HTMLElement)) {
-              return rect as HTMLElement;
+            if (rect && this.isValidDiagramElement(rect as unknown as HTMLElement) && 
+                !this.isBackgroundElement(rect as unknown as HTMLElement)) {
+              return rect as unknown as HTMLElement;
             }
             // Or return the group if it's a valid participant group
             if (this.isValidDiagramElement(parent as HTMLElement) && 
@@ -381,9 +496,9 @@ class HighlightEngine {
           }
           if (parent.tagName === 'g') {
             const rect = parent.querySelector('rect');
-            if (rect && this.isValidDiagramElement(rect as HTMLElement) && 
-                !this.isBackgroundElement(rect as HTMLElement)) {
-              return rect as HTMLElement;
+            if (rect && this.isValidDiagramElement(rect as unknown as HTMLElement) && 
+                !this.isBackgroundElement(rect as unknown as HTMLElement)) {
+              return rect as unknown as HTMLElement;
             }
             if (this.isValidDiagramElement(parent as HTMLElement) && 
                 !this.isBackgroundElement(parent as HTMLElement)) {

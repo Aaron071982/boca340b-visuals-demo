@@ -25,10 +25,10 @@ export default function InventoryOnHandTable({ onAction }: InventoryOnHandTableP
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
   useEffect(() => {
-    const mockInventory = generateInventory(60, currentLocation.code);
+    const mockInventory = generateInventory(60);
     setInventory(mockInventory);
     onAction?.('load', '/admin/inventory', 'GET');
-  }, [currentLocation, onAction]);
+  }, [onAction]);
 
   const columns: Column<InventoryItem>[] = [
     { key: 'ndc', label: 'NDC', sortable: true },

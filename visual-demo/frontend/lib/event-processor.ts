@@ -3,6 +3,7 @@
  */
 
 import { highlightEngine, HighlightTarget } from './mermaid-highlight';
+import { ErrorHandler } from './error-handler';
 import diagramIdsData from './diagram-ids.json';
 import buttonHighlightMapData from './button-highlight-map.json';
 
@@ -35,28 +36,32 @@ class EventProcessor {
    * Process a visualization event and apply highlights
    */
   processEvent(event: VisualizationEvent) {
-    const { request_id, phase, componentType, componentId, status } = event;
+    try {
+      const { request_id, phase, componentType, componentId, status } = event;
 
-    // Store active component
-    if (!this.activeComponents.has(request_id)) {
-      this.activeComponents.set(request_id, []);
+      // Store active component
+      if (!this.activeComponents.has(request_id)) {
+        this.activeComponents.set(request_id, []);
+      }
+
+      const components = this.activeComponents.get(request_id)!;
+      components.push({
+        requestId: request_id,
+        componentType,
+        componentId,
+        phase,
+        timestamp: event.timestamp,
+      });
+
+      // Map event to diagram highlights
+      const targets = this.mapEventToTargets(event);
+
+      targets.forEach((target) => {
+        highlightEngine.highlight(target);
+      });
+    } catch (error) {
+      ErrorHandler.handleEventProcessingError(event, error as Error);
     }
-
-    const components = this.activeComponents.get(request_id)!;
-    components.push({
-      requestId: request_id,
-      componentType,
-      componentId,
-      phase,
-      timestamp: event.timestamp,
-    });
-
-    // Map event to diagram highlights
-    const targets = this.mapEventToTargets(event);
-
-    targets.forEach((target) => {
-      highlightEngine.highlight(target);
-    });
   }
 
   /**

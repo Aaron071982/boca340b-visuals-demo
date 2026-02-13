@@ -17,7 +17,7 @@ sequenceDiagram
     
     OrdersController->>OrderRepository: getAllOrders()
     OrderRepository->>OrderModel: Order::with('orderitems')->get()
-    Note over OrderModel: Sets connection:<br/>$this->connection = Location::find(session('userLocationId'))->db_connection
+    Note over OrderModel: Sets connection: $this->connection = Location::find(session('userLocationId'))->db_connection
     OrderModel->>TenantDB: SELECT * FROM {database}.orders
     OrderModel->>OrderitemModel: Eager load related orderitems
     OrderitemModel->>TenantDB: SELECT * FROM {database}.orderitems WHERE order_id IN (...)

@@ -3,6 +3,7 @@
  */
 
 import { VisualizationEvent } from './event-processor';
+import { ErrorHandler } from './error-handler';
 
 // Polyfill EventSource for older browsers if needed
 if (typeof window !== 'undefined' && !window.EventSource) {
@@ -52,12 +53,17 @@ class EventStreamClient {
             onEvent(event);
           }
         } catch (err) {
-          console.error('Failed to parse event:', err);
+          ErrorHandler.handleEventProcessingError(e.data, err as Error);
         }
       });
 
       this.eventSource.addEventListener('error', (e) => {
-        console.error('SSE error:', e);
+        const errorMessage = this.reconnectAttempts < this.maxReconnectAttempts
+          ? 'SSE connection error. Attempting to reconnect...'
+          : 'SSE connection failed after multiple attempts. Using mock data.';
+        
+        ErrorHandler.handleConnectionError(errorMessage);
+        
         if (onError) {
           onError(new Error('SSE connection error'));
         }
@@ -81,7 +87,7 @@ class EventStreamClient {
       this.isConnected = true;
       this.reconnectAttempts = 0;
     } catch (err) {
-      console.error('Failed to create EventSource:', err);
+      ErrorHandler.handleConnectionError('Failed to create SSE connection. Using mock data.');
       if (onError) {
         onError(err as Error);
       }

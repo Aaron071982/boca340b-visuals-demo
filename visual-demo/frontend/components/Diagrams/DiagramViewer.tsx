@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import { highlightEngine } from '@/lib/mermaid-highlight';
+import { ErrorHandler } from '@/lib/error-handler';
 
 interface DiagramViewerProps {
   diagramSource: string;
@@ -11,13 +12,40 @@ interface DiagramViewerProps {
 
 export default function DiagramViewer({ diagramSource, diagramType }: DiagramViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasAttemptedLoadRef = useRef(false);
   const [rendered, setRendered] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !diagramSource) return;
+    if (!containerRef.current) {
+      setLoading(false);
+      return;
+    }
+
+    // If diagramSource is empty, show loading (parent component is still fetching)
+    // Only show error if we've attempted to load and it's still empty
+    if (!diagramSource) {
+      if (hasAttemptedLoadRef.current) {
+        // We've tried loading before and it's still empty - show error
+        setLoading(false);
+        setError('No diagram source provided');
+      } else {
+        // Still waiting for parent to load - show loading state
+        setLoading(true);
+        setError(null);
+      }
+      return;
+    }
+
+    // We have diagramSource, attempt to render
+    hasAttemptedLoadRef.current = true;
+    setLoading(true);
+    setError(null);
 
     // Initialize Mermaid with light theme and better visibility settings
-    if (!rendered) {
+    const shouldInitMermaid = !rendered;
+    if (shouldInitMermaid) {
       mermaid.initialize({
         startOnLoad: false,
         theme: 'default',
@@ -79,6 +107,7 @@ export default function DiagramViewer({ diagramSource, diagramType }: DiagramVie
         if (containerRef.current && svgContent) {
           containerRef.current.innerHTML = svgContent;
           setRendered(true);
+          setLoading(false);
 
           // Set container for highlight engine
           highlightEngine.setContainer(containerRef.current);
@@ -141,13 +170,13 @@ export default function DiagramViewer({ diagramSource, diagramType }: DiagramVie
           });
           
           // For flow diagrams, also mark participant boxes and message paths
-          if (diagramType === 'flow') {
-            // Find all participant boxes (rects that are part of actors)
-            const participantRects = containerRef.current.querySelectorAll('rect');
+          if (diagramType === 'flow' && containerRef.current) {
+            const container = containerRef.current;
+            const participantRects = container.querySelectorAll('rect');
             participantRects.forEach((rect) => {
               // Check if this rect is near participant text
               const rectBox = rect.getBoundingClientRect();
-              const nearbyTexts = Array.from(containerRef.current.querySelectorAll('text')).filter((text) => {
+              const nearbyTexts = Array.from(container.querySelectorAll('text')).filter((text) => {
                 const textBox = text.getBoundingClientRect();
                 // Check if text is vertically aligned with rect (participant box)
                 return Math.abs(textBox.left - rectBox.left) < 50 && 
@@ -167,21 +196,67 @@ export default function DiagramViewer({ diagramSource, diagramType }: DiagramVie
               }
             });
           }
+        } else {
+          throw new Error('Failed to render diagram: No SVG content returned');
         }
       } catch (error) {
-        console.error('Failed to render diagram:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        setError(errorMessage);
+        setLoading(false);
+        ErrorHandler.handleDiagramRenderError(diagramType, errorMessage);
+        
         if (containerRef.current) {
-          containerRef.current.innerHTML = `<p class="text-red-500 p-4">Failed to render diagram: ${error instanceof Error ? error.message : 'Unknown error'}. Please check console for details.</p>`;
+          containerRef.current.innerHTML = `
+            <div class="flex items-center justify-center h-full p-8">
+              <div class="text-center">
+                <p class="text-red-600 mb-4" style="font-family: Roboto, sans-serif;">${errorMessage}</p>
+                <button 
+                  onclick="window.location.reload()" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  style="font-family: Roboto, sans-serif;"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          `;
         }
       }
     };
 
     renderDiagram();
+    // Stable dependency array: only diagramSource and diagramType. Do not add rendered or state that changes inside the effect.
   }, [diagramSource, diagramType]);
 
+  // Always mount the container so ref is available for the effect; show loading/error as overlays.
   return (
-    <div className="w-full h-full overflow-auto p-6" style={{ backgroundColor: '#ffffff' }}>
-      <div ref={containerRef} className="mermaid-diagram-container" style={{ minHeight: '100%', backgroundColor: '#ffffff' }} />
+    <div className="relative w-full h-full overflow-auto p-6" style={{ backgroundColor: '#ffffff' }}>
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/95">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600" style={{ fontFamily: 'Roboto, sans-serif' }}>Loading diagram...</p>
+          </div>
+        </div>
+      )}
+      {error && !containerRef.current?.innerHTML && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-yellow-50 p-8">
+          <div className="text-center max-w-md">
+            <svg className="mx-auto h-12 w-12 text-yellow-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p className="text-yellow-800 mb-4" style={{ fontFamily: 'Roboto, sans-serif' }}>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors font-medium"
+              style={{ fontFamily: 'Roboto, sans-serif' }}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+      <div ref={containerRef} className="mermaid-diagram-container" style={{ minHeight: 200, backgroundColor: '#ffffff' }} />
     </div>
   );
 }

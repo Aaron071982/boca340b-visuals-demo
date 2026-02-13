@@ -18,7 +18,7 @@ sequenceDiagram
     
     CustomersController->>CustomerRepository: getAll() or paginated list
     CustomerRepository->>CustomerModel: Query customers table
-    Note over CustomerModel: Sets connection from session:<br/>$this->connection = session('userLocation')->db_connection
+    Note over CustomerModel: Sets connection from session: $this->connection = session('userLocation')->db_connection
     CustomerModel->>TenantDB: SELECT * FROM {database}.customers
     TenantDB-->>CustomerModel: Customer records
     CustomerModel-->>CustomerRepository: Collection of Customer models
